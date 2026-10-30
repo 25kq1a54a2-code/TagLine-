@@ -1,0 +1,1786 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TagLine - AI-Driven Campus Resource Allocation</title>
+    
+    <!-- Google Fonts linked directly to avoid CSS @import origin issues in sandboxed iframes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Suppress specific warnings to keep console clean during prototyping -->
+    <script>
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            if (args[0] && typeof args[0] === 'string') {
+                if (args[0].includes('cdn.tailwindcss.com should not be used in production')) return;
+                if (args[0].includes('allow-scripts and allow-same-origin')) return;
+            }
+            originalWarn.apply(console, args);
+        };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles and animations */
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* slate-900 */
+            color: #f8fafc; /* slate-50 */
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; /* slate-800 */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6; /* blue-500 */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #60a5fa; /* blue-400 */
+        }
+
+        .loader {
+            border: 3px solid #1e293b;
+            border-top: 3px solid #38bdf8; /* sky-400 */
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Tech Glow Effects */
+        .glow-accent {
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+        .glow-text {
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+        }
+        
+        /* Input styling overrides for dark theme */
+        input[type="text"], input[type="password"], input[type="tel"], input[type="number"], input[type="date"], input[type="time"], textarea {
+            background-color: #1e293b;
+            color: #f8fafc;
+            border-color: #334155;
+            color-scheme: dark;
+        }
+        input::placeholder, textarea::placeholder {
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col relative overflow-x-hidden">
+
+    <!-- Decorative Tech Background Grid -->
+    <div class="absolute inset-0 pointer-events-none z-[-1]" style="background-image: linear-gradient(rgba(51, 65, 85, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(51, 65, 85, 0.3) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.2;"></div>
+
+    <!-- Layout Wrapper -->
+    <div class="flex w-full min-h-screen bg-slate-900 text-slate-50">
+        
+        <!-- Main Content Area (Left) -->
+        <div class="flex-1 flex flex-col overflow-x-hidden overflow-y-auto relative">
+
+            <!-- Mobile Header (Visible only on small screens) -->
+            <div class="md:hidden flex justify-between items-center p-4 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30">
+                <span class="font-bold text-xl tracking-wide glow-text text-white">TagLine</span>
+            </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex flex-col p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full relative z-10">
+        
+        <!-- Loading State -->
+        <div id="loading-view" class="flex-grow flex flex-col items-center justify-center fade-in">
+            <div class="loader mb-6 shadow-[0_0_20px_rgba(56,189,248,0.5)] rounded-full"></div>
+            <p class="text-sky-400 font-medium tracking-wide animate-pulse">Establishing Secure Uplink...</p>
+        </div>
+
+        <!-- Role Selection / Auth View -->
+        <div id="role-selection-view" class="hidden flex-grow flex flex-col items-center justify-center fade-in py-8">
+            <div class="bg-slate-800/90 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full text-center relative overflow-hidden">
+                <!-- Decorative Top Glow -->
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-sky-400 to-indigo-500"></div>
+
+                <!-- Main App Logo -->
+                <div class="flex justify-center mb-6">
+                    <div class="w-24 h-24 rounded-full bg-slate-900 shadow-[0_0_30px_rgba(56,189,248,0.2)] border-2 border-sky-500/50 flex items-center justify-center overflow-hidden p-2">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                            <defs>
+                                <linearGradient id="main-logo-grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#0ea5e9" />
+                                    <stop offset="100%" stop-color="#3b82f6" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="50" cy="50" r="45" fill="none" stroke="url(#main-logo-grad2)" stroke-width="2" opacity="0.4"/>
+                            <path d="M 10 50 L 32 50 L 42 20 L 58 80 L 68 50 L 90 50" fill="none" stroke="url(#main-logo-grad2)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="32" cy="50" r="4" fill="#38bdf8" class="animate-pulse" />
+                            <circle cx="68" cy="50" r="4" fill="#3b82f6" class="animate-pulse" />
+                            
+                            <!-- Floating Data Nodes -->
+                            <polygon points="25,25 30,30 25,35 20,30" fill="#38bdf8" opacity="0.6"/>
+                            <polygon points="75,70 80,75 75,80 70,75" fill="#818cf8" opacity="0.6"/>
+                        </svg>
+                    </div>
+                </div>
+                <h2 class="text-3xl font-bold text-white mb-2 tracking-tight">TagLine</h2>
+                <p class="text-sky-400/80 mb-8 text-sm uppercase tracking-widest font-medium">AI-Driven Campus Resource Allocation</p>
+                
+                <div class="space-y-4 text-left w-full" id="auth-portal-selector">
+                    <button onclick="switchPortal('student')" class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold rounded-xl transition-all shadow-lg glow-accent flex items-center justify-center space-x-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path></svg>
+                        <span>Access Student Portal</span>
+                    </button>
+                    <button onclick="switchPortal('admin')" class="w-full py-3.5 px-4 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-xl transition-all shadow-md flex items-center justify-center space-x-3 border border-slate-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span>Access Admin Portal</span>
+                    </button>
+                </div>
+
+                <!-- Student Auth Container -->
+                <div class="space-y-5 bg-slate-900/50 p-6 rounded-xl border border-slate-700 hidden" id="student-auth-container">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-lg text-white">Student Login</h3>
+                        <button onclick="switchPortal('none')" class="text-sm text-slate-400 hover:text-white transition-colors">← Back</button>
+                    </div>
+                    <div class="flex space-x-2 bg-slate-800 p-1 rounded-lg border border-slate-700">
+                        <button onclick="toggleAuthMode('student', 'login')" id="btn-student-mode-login" class="flex-1 py-1.5 text-sm font-semibold rounded-md bg-blue-600 text-white shadow transition-all">Login</button>
+                        <button onclick="toggleAuthMode('student', 'register')" id="btn-student-mode-register" class="flex-1 py-1.5 text-sm font-semibold rounded-md text-slate-400 hover:text-white transition-all">Register</button>
+                    </div>
+                    
+                    <!-- Student Login Form -->
+                    <div id="student-login-form" class="space-y-4 text-left fade-in">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Full Name</label>
+                            <input type="text" id="student-login-name" class="w-full p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="John Doe">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Password</label>
+                            <input type="password" id="student-login-password" class="w-full p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="••••••••">
+                        </div>
+                        <button onclick="studentLogin()" class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-all shadow-[0_0_10px_rgba(37,99,235,0.4)] mt-2">Login to Portal</button>
+                    </div>
+
+                    <!-- Student Register Form -->
+                    <div id="student-register-form" class="space-y-4 text-left hidden fade-in">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Full Name</label>
+                            <input type="text" id="student-reg-name" class="w-full p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="John Doe">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Phone Number</label>
+                            <input type="tel" id="student-reg-phone" class="w-full p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="+91 98765 43210">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Password</label>
+                            <input type="password" id="student-reg-password" class="w-full p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="••••••••">
+                        </div>
+                        <button onclick="studentRegister()" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition-all shadow-[0_0_10px_rgba(5,150,105,0.4)] mt-2">Register Account</button>
+                    </div>
+                </div>
+
+                <!-- Admin Auth Container -->
+                <div class="space-y-5 bg-slate-900/50 p-6 rounded-xl border border-slate-700 hidden" id="admin-auth-container">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-lg text-white">Admin Terminal</h3>
+                        <button onclick="switchPortal('none')" class="text-sm text-slate-400 hover:text-white transition-colors">← Back</button>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-4 text-left">Please enter the system username and password to proceed.</p>
+
+                    <!-- Admin Login Form -->
+                    <div id="admin-login-form" class="space-y-4 text-left fade-in">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Admin Username</label>
+                            <input type="text" id="admin-username" class="w-full p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Admin Username (e.g. system)">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Admin Password</label>
+                            <input type="password" id="admin-password" class="w-full p-3 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Admin Password">
+                        </div>
+                        <button onclick="adminLogin()" class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg transition-all shadow-[0_0_10px_rgba(79,70,229,0.4)] mt-2 flex items-center justify-center">
+                            <span>Authenticate Admin</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Facility Selection View -->
+        <div id="facility-selection-view" class="hidden flex-grow flex flex-col items-center justify-center fade-in py-8">
+            <div class="bg-slate-800/90 backdrop-blur-xl p-8 rounded-2xl shadow-2xl border border-slate-700 max-w-2xl w-full text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-sky-400 to-indigo-500"></div>
+                
+                <h2 class="text-3xl font-bold text-white mb-2 tracking-tight">Select Operating Sector</h2>
+                <p class="text-sky-400/80 mb-8 text-sm uppercase tracking-widest font-medium">Choose your target environment</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- College Option -->
+                    <button onclick="selectFacility('College')" class="group relative bg-slate-900 border border-slate-700 hover:border-sky-500 rounded-xl p-8 transition-all hover:shadow-[0_0_20px_rgba(56,189,248,0.3)] flex flex-col items-center justify-center">
+                        <div class="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">College Campus</h3>
+                        <p class="text-slate-400 text-xs">Academic blocks, labs, and lecture halls.</p>
+                    </button>
+
+                    <!-- Hostel Option -->
+                    <button onclick="selectFacility('College Hostel')" class="group relative bg-slate-900 border border-slate-700 hover:border-indigo-500 rounded-xl p-8 transition-all hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] flex flex-col items-center justify-center">
+                        <div class="w-16 h-16 rounded-full bg-indigo-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="w-8 h-8 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">College Hostel</h3>
+                        <p class="text-slate-400 text-xs">Residential blocks, study rooms, and amenities.</p>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Dashboard -->
+        <div id="student-view" class="hidden fade-in space-y-8 w-full max-w-6xl mx-auto">
+            <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-700/50 pb-6">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight flex items-center flex-wrap gap-3">
+                        Resource Catalogue
+                        <span class="px-2.5 py-0.5 rounded text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">AI Optimized</span>
+                        <span id="student-dashboard-facility-badge" class="px-2.5 py-0.5 rounded text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-[0_0_10px_rgba(245,158,11,0.2)]"></span>
+                    </h1>
+                    <p class="text-slate-400 mt-2">Discover, request, and manage AI-optimized campus spaces in real-time.</p>
+                </div>
+                <button onclick="showFacilitySelection()" class="text-sm px-4 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg text-slate-300 transition-colors flex items-center shadow-sm">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                    Change Facility
+                </button>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="student-rooms-container">
+                <!-- Rooms injected here -->
+            </div>
+
+            <div class="bg-slate-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-slate-700 overflow-hidden">
+                <div class="p-6 border-b border-slate-700 bg-slate-800/50">
+                    <h2 class="text-xl font-bold text-white flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        My Booking Requests
+                    </h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900/50 text-slate-400 text-sm uppercase tracking-wider">
+                                <th class="p-4 font-semibold border-b border-slate-700">Room</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Date</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Time</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-bookings-body" class="divide-y divide-slate-700/50 text-sm text-slate-200">
+                            <!-- User bookings injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Student Complaints Section -->
+            <div class="bg-slate-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-slate-700 overflow-hidden mt-8">
+                <div class="p-6 border-b border-slate-700 bg-slate-800/50 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-white flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        My Reported Issues
+                    </h2>
+                    <button onclick="openComplaintModal()" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600/40 text-rose-400 text-sm font-semibold rounded-lg border border-rose-500/50 transition-all">Report Issue</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-900/50 text-slate-400 text-sm uppercase tracking-wider">
+                                <th class="p-4 font-semibold border-b border-slate-700">Resource</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Description</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Date Reported</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-complaints-body" class="divide-y divide-slate-700/50 text-sm text-slate-200">
+                            <!-- Student complaints injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="admin-view" class="hidden fade-in space-y-8 w-full max-w-6xl mx-auto">
+            <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-700/50 pb-6">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight flex items-center">
+                        Admin Terminal
+                        <span class="ml-3 px-2.5 py-0.5 rounded text-xs font-medium bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">System Override</span>
+                    </h1>
+                    <p class="text-slate-400 mt-2">Manage campus resources and review pending AI allocation requests.</p>
+                </div>
+                <div class="flex items-center space-x-3 w-full sm:w-auto">
+                    <select id="admin-facility-filter" onchange="changeAdminFacility(this.value)" class="bg-slate-800 text-white border border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none p-2.5 text-sm appearance-none">
+                        <option value="All">All Facilities</option>
+                        <option value="College">College Campus</option>
+                        <option value="College Hostel">College Hostel</option>
+                    </select>
+                    <button onclick="openAddRoomModal()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold transition-all shadow-[0_0_15px_rgba(79,70,229,0.4)] flex items-center space-x-2 whitespace-nowrap">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        <span class="hidden sm:inline">Add Resource</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Pending Requests -->
+                <div class="bg-slate-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-slate-700 flex flex-col overflow-hidden">
+                    <div class="p-6 border-b border-slate-700 bg-amber-500/10">
+                        <h2 class="text-xl font-bold text-amber-400 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                            Pending Requests
+                        </h2>
+                    </div>
+                    <div class="overflow-y-auto flex-grow max-h-[400px]">
+                        <ul id="admin-pending-requests" class="divide-y divide-slate-700/50">
+                            <!-- Pending requests injected here -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Manage Rooms -->
+                <div class="bg-slate-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-slate-700 flex flex-col overflow-hidden">
+                    <div class="p-6 border-b border-slate-700 bg-slate-800/50">
+                        <h2 class="text-xl font-bold text-white flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            Resource Management
+                        </h2>
+                    </div>
+                    <div class="overflow-y-auto flex-grow max-h-[400px]">
+                        <ul id="admin-rooms-list" class="divide-y divide-slate-700/50">
+                            <!-- Rooms injected here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Complaints Section -->
+            <div class="bg-slate-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-slate-700 overflow-hidden mt-8">
+                <div class="p-6 border-b border-slate-700 bg-red-500/10">
+                    <h2 class="text-xl font-bold text-red-400 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        Resource Issues & Complaints
+                    </h2>
+                </div>
+                <div class="overflow-x-auto max-h-[300px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 bg-slate-900 z-10 shadow-sm">
+                            <tr class="text-slate-400 text-sm uppercase tracking-wider">
+                                <th class="p-4 font-semibold border-b border-slate-700">Reported By</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Resource</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Issue Description</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-complaints-body" class="divide-y divide-slate-700/50 text-sm text-slate-200">
+                            <!-- Complaints injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Booking History -->
+            <div class="bg-slate-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-slate-700 overflow-hidden">
+                <div class="p-6 border-b border-slate-700 bg-slate-800/50">
+                    <h2 class="text-xl font-bold text-white">System Booking Log</h2>
+                </div>
+                <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 bg-slate-900 z-10 shadow-sm">
+                            <tr class="text-slate-400 text-sm uppercase tracking-wider">
+                                <th class="p-4 font-semibold border-b border-slate-700">User ID / Phone</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Room</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Date</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Time</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-history-body" class="divide-y divide-slate-700/50 text-sm text-slate-200">
+                            <!-- History injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin Complaints Section -->
+            <div class="bg-slate-800/80 backdrop-blur-sm rounded-xl shadow-lg border border-slate-700 overflow-hidden mt-8">
+                <div class="p-6 border-b border-slate-700 bg-rose-500/10 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-rose-400 flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        System Alerts & Complaints
+                    </h2>
+                </div>
+                <div class="overflow-x-auto max-h-[400px] overflow-y-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 bg-slate-900 z-10 shadow-sm">
+                            <tr class="text-slate-400 text-sm uppercase tracking-wider">
+                                <th class="p-4 font-semibold border-b border-slate-700">Reported By</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Resource</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Issue Details</th>
+                                <th class="p-4 font-semibold border-b border-slate-700">Status & Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-complaints-body" class="divide-y divide-slate-700/50 text-sm text-slate-200">
+                            <!-- Admin complaints injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 mt-auto py-6 relative z-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center text-slate-500 text-xs tracking-wider uppercase">
+            <p>&copy; 2026 TagLine Node</p>
+            <p class="mt-2 sm:mt-0 flex items-center"><span class="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span> Systems Online</p>
+        </div>
+    </footer>
+
+    </div> <!-- End Main Content Area -->
+
+    <!-- Right Sidebar (Navigation) -->
+    <aside id="sidebar-panel" class="hidden md:flex w-72 bg-slate-900 border-l border-slate-800 flex-col z-20 sticky top-0 h-screen overflow-y-auto shrink-0">
+        <div class="p-6 border-b border-slate-800 flex flex-col items-center">
+            <div class="w-20 h-20 rounded-full bg-slate-800 shadow-[0_0_20px_rgba(56,189,248,0.2)] border border-sky-500/50 flex items-center justify-center overflow-hidden mb-4 p-2">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                    <defs>
+                        <linearGradient id="main-logo-grad-side" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#0ea5e9" />
+                            <stop offset="100%" stop-color="#3b82f6" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="url(#main-logo-grad-side)" stroke-width="2" opacity="0.4"/>
+                    <path d="M 10 50 L 32 50 L 42 20 L 58 80 L 68 50 L 90 50" fill="none" stroke="url(#main-logo-grad-side)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                    <circle cx="32" cy="50" r="4" fill="#38bdf8" />
+                    <circle cx="68" cy="50" r="4" fill="#3b82f6" />
+                </svg>
+            </div>
+            <span class="font-bold text-xl tracking-wide glow-text text-white text-center mb-4">TagLine</span>
+            <div id="nav-user-info" class="flex flex-col items-center space-y-2 w-full bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+                <span id="user-role-badge" class="px-3 py-1 text-xs font-semibold rounded-full uppercase tracking-wider border mb-1"></span>
+                <span id="user-facility-badge" class="px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-widest border border-amber-500/50 bg-amber-500/20 text-amber-400 hidden mb-1"></span>
+                <span id="user-welcome" class="text-sm text-slate-300 font-medium text-center break-words w-full"></span>
+            </div>
+        </div>
+        <div class="p-4 flex-grow flex flex-col space-y-2">
+            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 px-2">Navigation</div>
+            <button class="w-full text-left px-4 py-3 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-lg font-medium flex items-center transition-colors">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                Dashboard Area
+            </button>
+            <div class="mt-auto pt-4 border-t border-slate-800">
+                <button id="logout-btn" class="w-full text-left px-4 py-3 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg font-medium flex items-center transition-colors">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Terminate Session
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    </div> <!-- End Layout Wrapper -->
+
+    <!-- Modals -->
+
+    <!-- Booking Modal -->
+    <div id="booking-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-600 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden fade-in">
+            <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/80">
+                <h3 class="text-xl font-bold text-sky-400">Request Space Allocation</h3>
+                <button onclick="closeModals()" class="text-slate-400 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Target Resource</label>
+                    <div id="book-room-name" class="p-3 bg-slate-900 rounded-lg text-white font-semibold border border-slate-700">Room Name</div>
+                </div>
+                <div>
+                    <label id="date-label" class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Allocation Date</label>
+                    <input type="date" id="book-date" class="w-full p-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+                </div>
+                <!-- Time Group for College Campus -->
+                <div id="time-group" class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Start Time</label>
+                        <input type="time" id="book-start-time" class="w-full p-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">End Time</label>
+                        <input type="time" id="book-end-time" class="w-full p-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    </div>
+                </div>
+                <!-- Duration Group for College Hostel -->
+                <div id="duration-group" class="hidden">
+                    <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Duration</label>
+                    <select id="book-duration" class="w-full p-3 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition text-white appearance-none">
+                        <option value="1 Day">1 Day</option>
+                        <option value="1 Week">1 Week</option>
+                        <option value="1 Month">1 Month</option>
+                        <option value="3 Months">3 Months</option>
+                        <option value="6 Months">6 Months</option>
+                        <option value="1 Year">1 Year</option>
+                    </select>
+                </div>
+            </div>
+            <div class="p-6 border-t border-slate-700 flex justify-end space-x-3 bg-slate-900/50">
+                <button onclick="closeModals()" class="px-5 py-2.5 text-slate-300 font-medium hover:bg-slate-700 rounded-lg transition">Cancel</button>
+                <button id="submit-booking-btn" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition-all shadow-[0_0_10px_rgba(37,99,235,0.4)]">Submit Request</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Room Modal (Admin) -->
+    <div id="add-room-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-600 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden fade-in">
+            <div class="p-6 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-indigo-400">Initialize New Resource</h3>
+                <button onclick="closeModals()" class="text-slate-400 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Facility Allocation</label>
+                    <select id="new-room-facility" class="w-full p-3 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition text-white appearance-none">
+                        <option value="College">College Campus</option>
+                        <option value="College Hostel">College Hostel</option>
+                    </select>
+                </div>
+                <!-- Dynamic Hostel Category (Hidden by default) -->
+                <div id="new-room-hostel-category-group" class="hidden">
+                    <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Hostel Type</label>
+                    <select id="new-room-hostel-category" class="w-full p-3 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition text-white appearance-none">
+                        <option value="Boys">Boys Hostel</option>
+                        <option value="Girls">Girls Hostel</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Resource Designation (Name)</label>
+                    <input type="text" id="new-room-name" class="w-full p-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" placeholder="e.g., Visweswaraiah Block - Lab 3">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Maximum Capacity (Nodes)</label>
+                    <input type="number" id="new-room-capacity" class="w-full p-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition" placeholder="45">
+                </div>
+            </div>
+            <div class="p-6 border-t border-slate-700 flex justify-end space-x-3 bg-slate-900/50">
+                <button onclick="closeModals()" class="px-5 py-2.5 text-slate-300 font-medium hover:bg-slate-700 rounded-lg transition">Cancel</button>
+                <button id="submit-room-btn" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg transition-all shadow-[0_0_10px_rgba(79,70,229,0.4)]">Deploy Resource</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Room Modal (Admin) -->
+    <div id="edit-room-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-600 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden fade-in">
+            <div class="p-6 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-sky-400">Reconfigure Resource</h3>
+                <button onclick="closeModals()" class="text-slate-400 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Facility Allocation</label>
+                    <select id="edit-room-facility" class="w-full p-3 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition text-white appearance-none">
+                        <option value="College">College Campus</option>
+                        <option value="College Hostel">College Hostel</option>
+                    </select>
+                </div>
+                <!-- Dynamic Hostel Category (Hidden by default) -->
+                <div id="edit-room-hostel-category-group" class="hidden">
+                    <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Hostel Type</label>
+                    <select id="edit-room-hostel-category" class="w-full p-3 bg-slate-900 border border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition text-white appearance-none">
+                        <option value="Boys">Boys Hostel</option>
+                        <option value="Girls">Girls Hostel</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Resource Designation (Name)</label>
+                    <input type="text" id="edit-room-name" class="w-full p-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Maximum Capacity (Nodes)</label>
+                    <input type="number" id="edit-room-capacity" class="w-full p-3 border border-slate-600 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none transition">
+                </div>
+            </div>
+            <div class="p-6 border-t border-slate-700 flex justify-end space-x-3 bg-slate-900/50">
+                <button onclick="closeModals()" class="px-5 py-2.5 text-slate-300 font-medium hover:bg-slate-700 rounded-lg transition">Cancel</button>
+                <button id="submit-edit-room-btn" class="px-6 py-2.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg transition-all shadow-[0_0_10px_rgba(2,132,199,0.4)]">Apply Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaint Modal (Student) -->
+    <div id="complaint-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-600 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden fade-in">
+            <div class="p-6 border-b border-slate-700 flex justify-between items-center bg-slate-800/80">
+                <h3 class="text-xl font-bold text-rose-400">Log System Issue</h3>
+                <button onclick="closeModals()" class="text-slate-400 hover:text-white transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Select Resource</label>
+                    <select id="complaint-room-select" class="w-full p-3 bg-slate-900 text-white border border-slate-600 rounded-lg focus:ring-2 focus:ring-rose-500 outline-none transition appearance-none">
+                        <!-- Options injected via JS -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1 uppercase tracking-wider">Issue Description</label>
+                    <textarea id="complaint-desc" rows="4" class="w-full p-3 bg-slate-900 text-white border border-slate-600 rounded-lg focus:ring-2 focus:ring-rose-500 outline-none transition" placeholder="Describe the problem (e.g., Projector not working, network failure)..."></textarea>
+                </div>
+            </div>
+            <div class="p-6 border-t border-slate-700 flex justify-end space-x-3 bg-slate-900/50">
+                <button onclick="closeModals()" class="px-5 py-2.5 text-slate-300 font-medium hover:bg-slate-700 rounded-lg transition">Cancel</button>
+                <button id="submit-complaint-btn" class="px-6 py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-lg transition-all shadow-[0_0_10px_rgba(225,29,72,0.4)]">Submit Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[60] flex flex-col space-y-3 pointer-events-none"></div>
+
+    <!-- Firebase & Logic Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, getDocs, updateDoc, onSnapshot, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global config provided by environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'spacepulse-ai-v1';
+        
+        let envConfig = {};
+        try {
+            envConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        } catch(e) {}
+        
+        // Provide a structural fallback config to prevent auth/invalid-api-key crashes if environment vars are missing
+        const firebaseConfig = envConfig.apiKey ? envConfig : {
+            apiKey: "AIzaSyMockKeyForLocalTesting00000000000",
+            authDomain: "mock-project.firebaseapp.com",
+            projectId: "mock-project",
+            storageBucket: "mock-project.appspot.com",
+            messagingSenderId: "000000000000",
+            appId: "1:000000000000:web:0000000000000000000000"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Firestore Paths (Strictly adhering to public data constraints for mock prototype)
+        const getPublicCollection = (colName) => collection(db, 'artifacts', appId, 'public', 'data', colName);
+        const getPublicDoc = (colName, docId) => doc(db, 'artifacts', appId, 'public', 'data', colName, docId);
+        
+        // Updated Collections based on requirements
+        const usersCol = getPublicCollection('users');
+        const studentsCol = getPublicCollection('students');
+        const adminsCol = getPublicCollection('admins');
+        const roomsCol = getPublicCollection('rooms');
+        const bookingsCol = getPublicCollection('bookings');
+        const complaintsCol = getPublicCollection('complaints'); // ADDED
+
+        // --- Offline / Local Mode Wrappers ---
+        const isLocalMode = !envConfig.apiKey;
+        const localData = {
+            users: JSON.parse(localStorage.getItem('tagline_users') || '[]'),
+            rooms: JSON.parse(localStorage.getItem('tagline_rooms') || '[]'),
+            bookings: JSON.parse(localStorage.getItem('tagline_bookings') || '[]'),
+            complaints: JSON.parse(localStorage.getItem('tagline_complaints') || '[]')
+        };
+        const localListeners = { users: [], rooms: [], bookings: [], complaints: [] };
+
+        function saveLocal(col) {
+            localStorage.setItem('tagline_' + col, JSON.stringify(localData[col]));
+            const snap = { empty: localData[col].length === 0, forEach: (cb) => localData[col].forEach(d => cb({ id: d.id, data: () => d })) };
+            localListeners[col].forEach(fn => fn(snap));
+        }
+
+        async function apiGetDocs(colName) {
+            if (isLocalMode) return { empty: localData[colName].length === 0, forEach: (cb) => localData[colName].forEach(d => cb({ id: d.id, data: () => d })) };
+            return getDocs(getPublicCollection(colName));
+        }
+
+        async function apiSetDoc(colName, docId, data) {
+            if (isLocalMode) {
+                const idx = localData[colName].findIndex(x => x.id === docId);
+                if (idx > -1) localData[colName][idx] = { id: docId, ...data };
+                else localData[colName].push({ id: docId, ...data });
+                saveLocal(colName);
+            } else {
+                return setDoc(getPublicDoc(colName, docId), data);
+            }
+        }
+
+        async function apiAddDoc(colName, data) {
+            if (isLocalMode) {
+                const docId = 'doc_' + Date.now() + Math.floor(Math.random() * 1000);
+                localData[colName].push({ id: docId, ...data });
+                saveLocal(colName);
+                return { id: docId };
+            } else {
+                return addDoc(getPublicCollection(colName), data);
+            }
+        }
+
+        async function apiUpdateDoc(colName, docId, data) {
+            if (isLocalMode) {
+                const idx = localData[colName].findIndex(x => x.id === docId);
+                if (idx > -1) {
+                    localData[colName][idx] = { ...localData[colName][idx], ...data };
+                    saveLocal(colName);
+                }
+            } else {
+                return updateDoc(getPublicDoc(colName, docId), data);
+            }
+        }
+
+        function apiOnSnapshot(colName, cb) {
+            if (isLocalMode) {
+                localListeners[colName].push(cb);
+                const snap = { empty: localData[colName].length === 0, forEach: (f) => localData[colName].forEach(d => f({ id: d.id, data: () => d })) };
+                cb(snap);
+                return () => { localListeners[colName] = localListeners[colName].filter(f => f !== cb); };
+            } else {
+                return onSnapshot(getPublicCollection(colName), cb, (err) => console.error("Snapshot error:", err));
+            }
+        }
+
+        // Application State
+        let currentUser = null; // Contains uid
+        let currentUserProfile = null; // Contains role, name, phone, etc.
+        let allRooms = [];
+        let allBookings = [];
+        let allComplaints = []; // ADDED
+        let activeRoomForBooking = null;
+        let activeRoomForEdit = null;
+        let activeRoomForComplaint = null;
+        let currentFacility = null; // Tracks "College" or "College Hostel"
+        let unsubRooms = null;
+        let unsubBookings = null;
+        let unsubComplaints = null; // ADDED
+
+        // --- UI Utilities ---
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            
+            let bgClass, borderClass, iconColor;
+            if (type === 'error') {
+                bgClass = 'bg-slate-800'; borderClass = 'border-red-500/50'; iconColor = 'text-red-400';
+            } else if (type === 'success') {
+                bgClass = 'bg-slate-800'; borderClass = 'border-emerald-500/50'; iconColor = 'text-emerald-400';
+            } else {
+                bgClass = 'bg-slate-800'; borderClass = 'border-blue-500/50'; iconColor = 'text-blue-400';
+            }
+
+            toast.className = `${bgClass} border ${borderClass} text-white px-6 py-4 rounded-xl shadow-2xl transform transition-all duration-300 translate-y-10 opacity-0 flex items-center space-x-3 pointer-events-auto max-w-sm`;
+            
+            const icon = type === 'error' 
+                ? `<svg class="w-6 h-6 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
+                : `<svg class="w-6 h-6 ${iconColor}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+            
+            toast.innerHTML = `${icon} <span class="font-medium text-sm">${message}</span>`;
+            document.getElementById('toast-container').appendChild(toast);
+            
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        window.closeModals = () => {
+            document.getElementById('booking-modal').classList.add('hidden');
+            document.getElementById('add-room-modal').classList.add('hidden');
+            document.getElementById('edit-room-modal').classList.add('hidden');
+            document.getElementById('complaint-modal').classList.add('hidden'); // ADDED
+            activeRoomForBooking = null;
+            activeRoomForEdit = null;
+            activeRoomForComplaint = null;
+        };
+
+        const showView = (viewId) => {
+            ['loading-view', 'role-selection-view', 'facility-selection-view', 'student-view', 'admin-view'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.classList.add('hidden');
+            });
+            document.getElementById(viewId).classList.remove('hidden');
+            
+            // Navbar updates
+            const navUserInfo = document.getElementById('nav-user-info');
+            if (viewId === 'student-view' || viewId === 'admin-view') {
+                if(navUserInfo) navUserInfo.classList.remove('hidden');
+                document.getElementById('sidebar-panel').classList.remove('hidden');
+                document.getElementById('sidebar-panel').classList.add('md:flex');
+                
+                const roleBadge = document.getElementById('user-role-badge');
+                const welcomeText = document.getElementById('user-welcome');
+                
+                if (currentUserProfile.role === 'admin') {
+                    roleBadge.innerText = 'Admin';
+                    roleBadge.className = 'px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-widest border border-indigo-500/50 bg-indigo-500/20 text-indigo-400';
+                    welcomeText.innerText = `Welcome, ${currentUserProfile.username}`;
+                } else {
+                    roleBadge.innerText = 'Student';
+                    roleBadge.className = 'px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-widest border border-blue-500/50 bg-blue-500/20 text-blue-400';
+                    welcomeText.innerText = `Welcome, ${currentUserProfile.name}`;
+                }
+            } else {
+                if(navUserInfo) navUserInfo.classList.add('hidden');
+                const sidebar = document.getElementById('sidebar-panel');
+                if (sidebar) {
+                    sidebar.classList.add('hidden');
+                    sidebar.classList.remove('md:flex');
+                }
+            }
+        };
+
+        // --- Core Auth Init ---
+        async function initializeAuth() {
+            if (isLocalMode) {
+                console.log("Running in Offline/Local Mode. Data saved to LocalStorage.");
+                currentUser = { uid: 'local_offline_user' };
+                if (!currentUserProfile) {
+                    showView('role-selection-view');
+                    switchPortal('none');
+                }
+                return;
+            }
+
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (err) {
+                console.error("Auth init error:", err);
+                showToast("System connection failed. Environment detached.", "error");
+                
+                // Allow user to at least see the UI error instead of loading forever
+                const loader = document.getElementById('loading-view');
+                if(loader) {
+                    loader.innerHTML = `
+                        <div class="text-amber-500 font-bold mb-2">Connection Offline</div>
+                        <div class="text-slate-400 text-sm max-w-xs text-center border border-amber-500/30 bg-amber-500/10 p-4 rounded-lg mt-4">
+                            Database connection is unavailable (Missing or Invalid Firebase Config). Please run this file within the active platform environment.
+                        </div>
+                    `;
+                    loader.classList.remove('animate-pulse');
+                }
+            }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (isLocalMode) return; // Prevent rogue cloud listener from overriding local mode
+            
+            if (user) {
+                currentUser = user;
+                // Since this is a prototype and we don't know the role strictly from Firebase Auth, 
+                // we'll default to the login screen and let the user select/login to match their profile.
+                if (!currentUserProfile) {
+                    showView('role-selection-view');
+                    switchPortal('none');
+                }
+            } else {
+                currentUser = null;
+                currentUserProfile = null;
+                const sidebar = document.getElementById('sidebar-panel');
+                if(sidebar) {
+                    sidebar.classList.add('hidden');
+                    sidebar.classList.remove('md:flex');
+                }
+                showView('loading-view');
+                if(unsubRooms) unsubRooms();
+                if(unsubBookings) unsubBookings();
+                if(unsubComplaints) unsubComplaints();
+            }
+        });
+
+        // --- UI Auth Portal Toggles ---
+        window.switchPortal = (portal) => {
+            document.getElementById('auth-portal-selector').classList.add('hidden');
+            document.getElementById('student-auth-container').classList.add('hidden');
+            document.getElementById('admin-auth-container').classList.add('hidden');
+
+            if (portal === 'student') {
+                document.getElementById('student-auth-container').classList.remove('hidden');
+                toggleAuthMode('student', 'login');
+            } else if (portal === 'admin') {
+                document.getElementById('admin-auth-container').classList.remove('hidden');
+                // Admin has no toggle mode, login is default
+            } else {
+                document.getElementById('auth-portal-selector').classList.remove('hidden');
+            }
+        };
+
+        window.toggleAuthMode = (portal, mode) => {
+            const loginBtn = document.getElementById(`btn-${portal}-mode-login`);
+            const regBtn = document.getElementById(`btn-${portal}-mode-register`);
+            const loginForm = document.getElementById(`${portal}-login-form`);
+            const regForm = document.getElementById(`${portal}-register-form`);
+
+            const activeClass = portal === 'admin' ? "flex-1 py-1.5 text-sm font-semibold rounded-md bg-indigo-600 text-white shadow transition-all" : "flex-1 py-1.5 text-sm font-semibold rounded-md bg-blue-600 text-white shadow transition-all";
+            const inactiveClass = "flex-1 py-1.5 text-sm font-semibold rounded-md text-slate-400 hover:text-white transition-all bg-transparent";
+
+            if (mode === 'login') {
+                loginBtn.className = activeClass; regBtn.className = inactiveClass;
+                loginForm.classList.remove('hidden'); regForm.classList.add('hidden');
+            } else {
+                regBtn.className = activeClass; loginBtn.className = inactiveClass;
+                regForm.classList.remove('hidden'); loginForm.classList.add('hidden');
+            }
+        };
+
+        // --- Registration & Login Logic ---
+
+        // STUDENT
+        window.studentRegister = async () => {
+            if (!currentUser) return;
+            const name = document.getElementById('student-reg-name').value.trim();
+            const phone = document.getElementById('student-reg-phone').value.trim();
+            const password = document.getElementById('student-reg-password').value;
+
+            if (!name || !phone || !password) {
+                showToast("All data fields required.", "error"); return;
+            }
+            showView('loading-view');
+            try {
+                // Check if phone already exists in users collection
+                const snap = await apiGetDocs('users');
+                let exists = false;
+                snap.forEach(doc => { if (doc.data().phone === phone && doc.data().role === 'student') exists = true; });
+                
+                if (exists) {
+                    showToast("Phone number already registered.", "error");
+                    showView('role-selection-view'); switchPortal('student'); return;
+                }
+
+                // Create profile Document
+                const profileId = `student_${Date.now()}_${Math.floor(Math.random()*1000)}`;
+                const profileData = {
+                    profileId: profileId,
+                    authUid: currentUser.uid,
+                    role: 'student',
+                    name: name,
+                    phone: phone,
+                    password: password, // Note: For prototype mockup only
+                    createdAt: Date.now()
+                };
+                await apiSetDoc('users', profileId, profileData);
+                currentUserProfile = profileData;
+                showToast("Student clearance granted.", "success");
+                showFacilitySelection();
+            } catch (err) {
+                console.error(err);
+                showView('role-selection-view'); showToast("Registration failure.", "error");
+            }
+        };
+
+        window.studentLogin = async () => {
+            if (!currentUser) return;
+            const name = document.getElementById('student-login-name').value.trim();
+            const pass = document.getElementById('student-login-password').value;
+
+            if (!name || !pass) { showToast("Credentials missing.", "error"); return; }
+            showView('loading-view');
+
+            try {
+                const snap = await apiGetDocs('users');
+                let found = null;
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.role === 'student' && data.name.toLowerCase() === name.toLowerCase() && data.password === pass) found = data;
+                });
+
+                if (found) {
+                    currentUserProfile = found;
+                    showToast("Access granted.", "success");
+                    showFacilitySelection();
+                } else {
+                    showView('role-selection-view'); switchPortal('student');
+                    showToast("Invalid credentials.", "error");
+                }
+            } catch (err) {
+                console.error(err);
+                showView('role-selection-view'); showToast("System query error.", "error");
+            }
+        };
+
+        // ADMIN
+        window.adminLogin = async () => {
+            if (!currentUser) return;
+            const username = document.getElementById('admin-username').value.trim();
+            const pass = document.getElementById('admin-password').value;
+
+            if (!username || !pass) { showToast("Admin credentials missing.", "error"); return; }
+            showView('loading-view');
+
+            try {
+                const snap = await apiGetDocs('users');
+                let found = null;
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.role === 'admin' && data.username === username && data.password === pass) found = data;
+                });
+
+                // Auto-create default system admin if it doesn't exist
+                if (!found && username === 'system' && pass === 'system') {
+                    const profileId = `admin_${Date.now()}`;
+                    found = {
+                        profileId: profileId,
+                        authUid: currentUser.uid,
+                        role: 'admin',
+                        username: 'system',
+                        password: 'system',
+                        createdAt: Date.now()
+                    };
+                    await apiSetDoc('users', profileId, found);
+                }
+
+                if (found) {
+                    currentUserProfile = found;
+                    showToast("Admin terminal unlocked.", "success");
+                    currentFacility = 'All';
+                    if(document.getElementById('admin-facility-filter')) document.getElementById('admin-facility-filter').value = 'All';
+                    loadDashboard();
+                } else {
+                    showView('role-selection-view'); switchPortal('admin');
+                    showToast("Invalid admin credentials.", "error");
+                }
+            } catch (err) {
+                console.error(err);
+                showView('role-selection-view'); showToast("System query error.", "error");
+            }
+        };
+
+        // LOGOUT
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            if(!currentUserProfile) return;
+            showView('loading-view');
+            
+            // Clean up listeners
+            if(unsubRooms) { unsubRooms(); unsubRooms = null; }
+            if(unsubBookings) { unsubBookings(); unsubBookings = null; }
+            if(unsubComplaints) { unsubComplaints(); unsubComplaints = null; } // ADDED
+            
+            // Clear memory state
+            currentUserProfile = null;
+            currentFacility = null;
+            allRooms = [];
+            allBookings = [];
+            allComplaints = []; // ADDED
+            
+            // Clear inputs
+            document.querySelectorAll('input, textarea').forEach(i => i.value = '');
+            
+            setTimeout(() => {
+                showToast("Session terminated.", "info");
+                showView('role-selection-view');
+                switchPortal('none');
+                document.getElementById('sidebar-panel').classList.add('hidden');
+                document.getElementById('sidebar-panel').classList.remove('md:flex');
+                document.getElementById('user-facility-badge').classList.add('hidden');
+            }, 500);
+        });
+
+        // --- Facility & Dashboard Flow ---
+        window.showFacilitySelection = () => {
+            showView('facility-selection-view');
+        };
+
+        window.selectFacility = (facility) => {
+            currentFacility = facility;
+            
+            // Update sidebar badge
+            const facilityBadge = document.getElementById('user-facility-badge');
+            if (facilityBadge) {
+                facilityBadge.innerText = facility;
+                facilityBadge.classList.remove('hidden');
+            }
+            
+            loadDashboard();
+        };
+
+        window.changeAdminFacility = (facility) => {
+            currentFacility = facility;
+            renderRooms();
+        };
+
+        // --- Realtime Dashboard Data Loading ---
+        async function checkAndPopulateDummyData() {
+            try {
+                const snap = await apiGetDocs('rooms');
+                if (snap.empty) {
+                    const dummyRooms = [
+                        { name: "Visweswaraiah Block - Room 204", capacity: 45, isActive: true, createdAt: Date.now(), facility: 'College' },
+                        { name: "AI & Data Science Lab", capacity: 30, isActive: true, createdAt: Date.now() + 1, facility: 'College' },
+                        { name: "Main Auditorium (Block B)", capacity: 250, isActive: true, createdAt: Date.now() + 2, facility: 'College' },
+                        { name: "Boys Hostel - Common Room A", capacity: 50, isActive: true, createdAt: Date.now() + 3, facility: 'College Hostel', hostelCategory: 'Boys' },
+                        { name: "Girls Hostel - Study Lounge", capacity: 20, isActive: true, createdAt: Date.now() + 4, facility: 'College Hostel', hostelCategory: 'Girls' }
+                    ];
+                    
+                    for (const room of dummyRooms) {
+                        await apiAddDoc('rooms', room);
+                    }
+                    console.log("Populated dummy resource data.");
+                }
+            } catch (err) {
+                console.error("Error populating dummy data:", err);
+            }
+        }
+
+        async function loadDashboard() {
+            if (!currentUserProfile) return;
+            
+            // Update Student Dashboard Facility Indicator
+            const studentFacilityBadge = document.getElementById('student-dashboard-facility-badge');
+            if (studentFacilityBadge) {
+                studentFacilityBadge.innerText = currentFacility || 'All Facilities';
+            }
+
+            // Wait for dummy data setup if first time
+            await checkAndPopulateDummyData();
+            
+            // Re-verify the user hasn't disconnected during data load
+            if (!currentUserProfile) return;
+
+            // Setup Listeners
+            setupRealtimeListeners();
+
+            if (currentUserProfile.role === 'admin') {
+                showView('admin-view');
+            } else {
+                showView('student-view');
+            }
+        }
+
+        function setupRealtimeListeners() {
+            if (!currentUserProfile) return;
+
+            // Rooms Listener
+            if (unsubRooms) unsubRooms();
+            unsubRooms = apiOnSnapshot('rooms', (snap) => {
+                allRooms = [];
+                snap.forEach(doc => { allRooms.push({ id: doc.id, ...doc.data() }); });
+                // Sort alphabetically in memory
+                allRooms.sort((a,b) => a.name.localeCompare(b.name));
+                renderRooms();
+            });
+
+            // Bookings Listener
+            if (unsubBookings) unsubBookings();
+            unsubBookings = apiOnSnapshot('bookings', (snap) => {
+                allBookings = [];
+                snap.forEach(doc => { allBookings.push({ id: doc.id, ...doc.data() }); });
+                // Sort by date/time descending in memory
+                allBookings.sort((a, b) => {
+                    const dateA = new Date(a.date + 'T' + a.startTime).getTime();
+                    const dateB = new Date(b.date + 'T' + b.startTime).getTime();
+                    return (isNaN(dateB) ? 0 : dateB) - (isNaN(dateA) ? 0 : dateA);
+                });
+                renderBookings();
+            });
+
+            // Complaints Listener
+            if (unsubComplaints) unsubComplaints();
+            unsubComplaints = apiOnSnapshot('complaints', (snap) => {
+                allComplaints = [];
+                snap.forEach(doc => { allComplaints.push({ id: doc.id, ...doc.data() }); });
+                // Sort by date descending in memory
+                allComplaints.sort((a, b) => b.createdAt - a.createdAt);
+                renderComplaints();
+            });
+        }
+
+        // --- Render UI ---
+        function renderRooms() {
+            if (!currentUserProfile) return;
+
+            // Filter rooms by the currently selected facility
+            const facilityRooms = allRooms.filter(r => currentFacility === 'All' || r.facility === currentFacility || (!r.facility && currentFacility === 'College'));
+
+            if (currentUserProfile.role === 'student') {
+                const container = document.getElementById('student-rooms-container');
+                container.innerHTML = '';
+                
+                const activeRooms = facilityRooms.filter(r => r.isActive);
+                if (activeRooms.length === 0) {
+                    container.innerHTML = `<div class="col-span-full text-center p-8 text-slate-500 bg-slate-800/50 rounded-xl border border-slate-700">No resources currently online in ${currentFacility}.</div>`;
+                    return;
+                }
+
+                activeRooms.forEach(room => {
+                    const card = document.createElement('div');
+                    card.className = "bg-slate-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-slate-700 hover:border-sky-500/50 hover:shadow-[0_0_15px_rgba(56,189,248,0.2)] transition-all flex flex-col justify-between h-full group relative overflow-hidden";
+                    
+                    // Tech accent line
+                    const accent = document.createElement('div');
+                    accent.className = "absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-500 to-sky-400 opacity-50 group-hover:opacity-100 transition-opacity";
+                    card.appendChild(accent);
+
+                    card.innerHTML += `
+                        <div class="pl-2">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-lg font-bold text-white leading-tight pr-2">
+                                    ${escapeHtml(room.name)}
+                                    ${room.facility === 'College Hostel' && room.hostelCategory ? `<span class="inline-block align-middle ml-2 text-[10px] bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded border border-purple-500/30 uppercase tracking-wider shadow-[0_0_8px_rgba(168,85,247,0.2)]">${room.hostelCategory}</span>` : ''}
+                                </h3>
+                                <span class="bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider whitespace-nowrap">Online</span>
+                            </div>
+                            <div class="flex items-center text-slate-400 text-sm mb-6 space-x-2">
+                                <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                <span>Max Nodes: <strong class="text-slate-200">${room.capacity}</strong></span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col space-y-2 mt-auto z-10">
+                            <button onclick="openBookingModal('${room.id}')" class="w-full py-2.5 bg-slate-700/50 border border-slate-600 text-sky-400 font-semibold rounded-lg hover:bg-blue-600 hover:text-white hover:border-blue-500 transition-all">Request Allocation</button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } else if (currentUserProfile.role === 'admin') {
+                const list = document.getElementById('admin-rooms-list');
+                list.innerHTML = '';
+                
+                if (facilityRooms.length === 0) {
+                    list.innerHTML = `<li class="p-6 text-center text-slate-500">No resources initialized in ${currentFacility}. Deploy a new resource above.</li>`;
+                    return;
+                }
+
+                facilityRooms.forEach(room => {
+                    const li = document.createElement('li');
+                    li.className = "p-4 hover:bg-slate-700/30 flex flex-col sm:flex-row items-start sm:items-center justify-between transition-colors gap-4";
+                    
+                    const statusClass = room.isActive ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' : 'text-rose-400 bg-rose-500/10 border-rose-500/30';
+                    const statusText = room.isActive ? 'Online' : 'Offline';
+                    const btnClass = room.isActive ? 'hover:bg-rose-600 hover:text-white hover:border-rose-500' : 'hover:bg-emerald-600 hover:text-white hover:border-emerald-500';
+                    const btnText = room.isActive ? 'Take Offline' : 'Bring Online';
+
+                    li.innerHTML = `
+                        <div class="flex-grow">
+                            <div class="font-semibold text-white text-lg">
+                                ${escapeHtml(room.name)} 
+                                <span class="ml-2 text-[10px] bg-slate-700/50 text-slate-400 px-2 py-0.5 rounded uppercase tracking-widest border border-slate-600">${room.facility || 'College'}</span>
+                                ${room.facility === 'College Hostel' && room.hostelCategory ? `<span class="ml-1 text-[10px] bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded uppercase tracking-widest border border-purple-500/30 shadow-sm">${room.hostelCategory}</span>` : ''}
+                            </div>
+                            <div class="flex items-center space-x-3 mt-1">
+                                <span class="text-xs text-slate-400 font-mono">Cap: ${room.capacity}</span>
+                                <span class="inline-block text-[10px] px-2 py-0.5 rounded border font-bold uppercase tracking-wider ${statusClass}">${statusText}</span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 mt-3 sm:mt-0">
+                            <button onclick="openEditRoomModal('${room.id}')" class="text-xs px-3 py-2 border border-slate-600 bg-slate-700/50 rounded-md text-sky-300 font-bold uppercase tracking-wider transition-all whitespace-nowrap hover:bg-sky-600 hover:text-white hover:border-sky-500">
+                                Edit
+                            </button>
+                            <button onclick="toggleRoomStatus('${room.id}', ${room.isActive})" class="text-xs px-3 py-2 border border-slate-600 bg-slate-700/50 rounded-md text-slate-300 font-bold uppercase tracking-wider transition-all whitespace-nowrap ${btnClass}">
+                                ${btnText}
+                            </button>
+                        </div>
+                    `;
+                    list.appendChild(li);
+                });
+            }
+        }
+
+        function renderBookings() {
+            if (!currentUserProfile) return;
+
+            if (currentUserProfile.role === 'student') {
+                const body = document.getElementById('student-bookings-body');
+                body.innerHTML = '';
+                // Filter memory array for current student
+                const myBookings = allBookings.filter(b => b.profileId === currentUserProfile.profileId);
+
+                if (myBookings.length === 0) {
+                    body.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500 font-medium">No active allocations found in your log.</td></tr>`;
+                    return;
+                }
+
+                myBookings.forEach(b => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-700/30 transition-colors border-b border-slate-700/50 last:border-0";
+                    tr.innerHTML = `
+                        <td class="p-4 font-semibold text-sky-100">${escapeHtml(b.roomName)}</td>
+                        <td class="p-4 text-slate-300">${formatDate(b.date)}</td>
+                        <td class="p-4 text-slate-300 font-mono text-sm">${b.isHostel ? b.duration : (b.startTime + ' - ' + b.endTime)}</td>
+                        <td class="p-4">${getStatusBadge(b.status)}</td>
+                    `;
+                    body.appendChild(tr);
+                });
+            } else if (currentUserProfile.role === 'admin') {
+                const pendingList = document.getElementById('admin-pending-requests');
+                const historyBody = document.getElementById('admin-history-body');
+                
+                pendingList.innerHTML = '';
+                historyBody.innerHTML = '';
+
+                const pending = allBookings.filter(b => b.status === 'pending');
+                const history = allBookings.filter(b => b.status !== 'pending');
+
+                if (pending.length === 0) {
+                    pendingList.innerHTML = `<li class="p-8 text-center text-slate-500 font-medium">All queues clear. No pending requests.</li>`;
+                } else {
+                    pending.forEach(b => {
+                        const li = document.createElement('li');
+                        li.className = "p-4 hover:bg-slate-700/30 transition-colors group";
+                        li.innerHTML = `
+                            <div class="flex flex-col sm:flex-row justify-between items-start mb-3 gap-2">
+                                <div>
+                                    <div class="font-bold text-white text-lg leading-tight">${escapeHtml(b.roomName)}</div>
+                                    <div class="text-xs text-slate-400 mt-1 flex items-center">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                                        ${escapeHtml(b.studentName || b.studentPhone || 'Unknown')}
+                                    </div>
+                                </div>
+                                <div class="text-right text-xs font-mono text-sky-400 bg-sky-500/10 border border-sky-500/20 px-3 py-1.5 rounded-lg w-full sm:w-auto">
+                                    ${formatDate(b.date)}<br/>${b.isHostel ? b.duration : (b.startTime + ' - ' + b.endTime)}
+                                </div>
+                            </div>
+                            <div class="flex space-x-2 mt-2">
+                                <button onclick="updateBookingStatus('${b.id}', 'approved')" class="flex-1 bg-emerald-600/20 border border-emerald-500/50 text-emerald-400 text-xs uppercase tracking-wider font-bold py-2 rounded hover:bg-emerald-600 hover:text-white transition-all">Approve</button>
+                                <button onclick="updateBookingStatus('${b.id}', 'rejected')" class="flex-1 bg-rose-600/20 border border-rose-500/50 text-rose-400 text-xs uppercase tracking-wider font-bold py-2 rounded hover:bg-rose-600 hover:text-white transition-all">Reject</button>
+                            </div>
+                        `;
+                        pendingList.appendChild(li);
+                    });
+                }
+
+                if (history.length === 0) {
+                    historyBody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500 font-medium">No operational history logs found.</td></tr>`;
+                } else {
+                    history.forEach(b => {
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-slate-700/30 transition-colors border-b border-slate-700/50 last:border-0";
+                        tr.innerHTML = `
+                            <td class="p-4 text-xs text-slate-300">
+                                <div class="font-medium text-white">${escapeHtml(b.studentName || 'N/A')}</div>
+                                <div class="text-slate-500 font-mono mt-0.5">${escapeHtml(b.studentPhone || b.profileId.substring(0,10))}</div>
+                            </td>
+                            <td class="p-4 font-semibold text-sky-100">${escapeHtml(b.roomName)}</td>
+                            <td class="p-4 text-slate-300 whitespace-nowrap">${formatDate(b.date)}</td>
+                            <td class="p-4 text-slate-300 font-mono text-xs whitespace-nowrap">${b.isHostel ? b.duration : (b.startTime + ' - ' + b.endTime)}</td>
+                            <td class="p-4">${getStatusBadge(b.status)}</td>
+                        `;
+                        historyBody.appendChild(tr);
+                    });
+                }
+            }
+        }
+
+        function getStatusBadge(status) {
+            if (status === 'approved') return `<span class="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold rounded uppercase tracking-wider">Approved</span>`;
+            if (status === 'rejected') return `<span class="px-2.5 py-1 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[10px] font-bold rounded uppercase tracking-wider">Rejected</span>`;
+            return `<span class="px-2.5 py-1 bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] font-bold rounded uppercase tracking-wider">Pending</span>`;
+        }
+
+        function getComplaintStatusBadge(status) {
+            if (status === 'resolved') return `<span class="px-2.5 py-1 bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold rounded uppercase tracking-wider">Resolved</span>`;
+            return `<span class="px-2.5 py-1 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[10px] font-bold rounded uppercase tracking-wider">Open</span>`;
+        }
+
+        function renderComplaints() {
+            if (!currentUserProfile) return;
+
+            if (currentUserProfile.role === 'student') {
+                const body = document.getElementById('student-complaints-body');
+                body.innerHTML = '';
+                // Filter memory array for current student
+                const myComplaints = allComplaints.filter(c => c.profileId === currentUserProfile.profileId);
+
+                if (myComplaints.length === 0) {
+                    body.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500 font-medium">No reported issues found.</td></tr>`;
+                    return;
+                }
+
+                myComplaints.forEach(c => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-700/30 transition-colors border-b border-slate-700/50 last:border-0";
+                    tr.innerHTML = `
+                        <td class="p-4 font-semibold text-sky-100">${escapeHtml(c.roomName)}</td>
+                        <td class="p-4 text-slate-300 text-sm max-w-[200px] truncate" title="${escapeHtml(c.description)}">${escapeHtml(c.description)}</td>
+                        <td class="p-4 text-slate-300 text-sm whitespace-nowrap">${new Date(c.createdAt).toLocaleDateString()}</td>
+                        <td class="p-4">${getComplaintStatusBadge(c.status)}</td>
+                    `;
+                    body.appendChild(tr);
+                });
+            } else if (currentUserProfile.role === 'admin') {
+                const body = document.getElementById('admin-complaints-body');
+                body.innerHTML = '';
+
+                if (allComplaints.length === 0) {
+                    body.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-slate-500 font-medium">All systems operational. No active complaints.</td></tr>`;
+                    return;
+                }
+
+                allComplaints.forEach(c => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-700/30 transition-colors border-b border-slate-700/50 last:border-0";
+                    
+                    const actionBtn = c.status !== 'resolved' 
+                        ? `<button onclick="updateComplaintStatus('${c.id}', 'resolved')" class="mt-3 block text-xs bg-emerald-600/20 border border-emerald-500/50 text-emerald-400 uppercase tracking-wider font-bold py-1.5 px-3 rounded hover:bg-emerald-600 hover:text-white transition-all">Resolve Issue</button>` 
+                        : '';
+
+                    tr.innerHTML = `
+                        <td class="p-4 text-xs text-slate-300">
+                            <div class="font-medium text-white">${escapeHtml(c.studentName || 'N/A')}</div>
+                            <div class="text-slate-500 font-mono mt-0.5">${escapeHtml(c.studentPhone || '')}</div>
+                        </td>
+                        <td class="p-4 font-semibold text-sky-100">${escapeHtml(c.roomName)}</td>
+                        <td class="p-4 text-slate-300 text-sm">
+                            <div class="max-w-xs sm:max-w-sm break-words">${escapeHtml(c.description)}</div>
+                            <div class="text-slate-500 text-xs mt-1">Reported: ${new Date(c.createdAt).toLocaleDateString()}</div>
+                        </td>
+                        <td class="p-4 align-top">
+                            <div>${getComplaintStatusBadge(c.status)}</div>
+                            ${actionBtn}
+                        </td>
+                    `;
+                    body.appendChild(tr);
+                });
+            }
+        }
+
+        // --- Core Interactions ---
+
+        // Dynamic visibility for Hostel Category dropdowns
+        document.getElementById('new-room-facility').addEventListener('change', (e) => {
+            document.getElementById('new-room-hostel-category-group').classList.toggle('hidden', e.target.value !== 'College Hostel');
+        });
+        document.getElementById('edit-room-facility').addEventListener('change', (e) => {
+            document.getElementById('edit-room-hostel-category-group').classList.toggle('hidden', e.target.value !== 'College Hostel');
+        });
+
+        window.openAddRoomModal = () => {
+            if (!currentUserProfile || currentUserProfile.role !== 'admin') return;
+            document.getElementById('new-room-name').value = '';
+            document.getElementById('new-room-capacity').value = '';
+            document.getElementById('new-room-facility').value = 'College';
+            document.getElementById('new-room-hostel-category-group').classList.add('hidden'); // Reset visibility
+            document.getElementById('new-room-hostel-category').value = 'Boys';
+            document.getElementById('add-room-modal').classList.remove('hidden');
+        };
+
+        document.getElementById('submit-room-btn').addEventListener('click', async () => {
+            if (!currentUserProfile || currentUserProfile.role !== 'admin') return;
+            
+            const facility = document.getElementById('new-room-facility').value;
+            const name = document.getElementById('new-room-name').value.trim();
+            const capacity = parseInt(document.getElementById('new-room-capacity').value);
+            const hostelCategory = facility === 'College Hostel' ? document.getElementById('new-room-hostel-category').value : null;
+
+            if (!name || isNaN(capacity) || capacity <= 0) {
+                showToast("Invalid resource parameters.", "error"); return;
+            }
+
+            try {
+                await apiAddDoc('rooms', {
+                    name, capacity, isActive: true, createdAt: Date.now(), facility: facility, hostelCategory: hostelCategory
+                });
+                showToast("New resource deployed.", "success");
+                closeModals();
+            } catch (err) {
+                console.error(err);
+                showToast("Deployment failed.", "error");
+            }
+        });
+
+        window.openEditRoomModal = (roomId) => {
+            if (!currentUserProfile || currentUserProfile.role !== 'admin') return;
+            activeRoomForEdit = allRooms.find(r => r.id === roomId);
+            if (!activeRoomForEdit) return;
+            
+            document.getElementById('edit-room-name').value = activeRoomForEdit.name;
+            document.getElementById('edit-room-capacity').value = activeRoomForEdit.capacity;
+            document.getElementById('edit-room-facility').value = activeRoomForEdit.facility || 'College';
+            
+            // Set visibility and value for hostel category
+            if (activeRoomForEdit.facility === 'College Hostel') {
+                document.getElementById('edit-room-hostel-category-group').classList.remove('hidden');
+                document.getElementById('edit-room-hostel-category').value = activeRoomForEdit.hostelCategory || 'Boys';
+            } else {
+                document.getElementById('edit-room-hostel-category-group').classList.add('hidden');
+            }
+
+            document.getElementById('edit-room-modal').classList.remove('hidden');
+        };
+
+        document.getElementById('submit-edit-room-btn').addEventListener('click', async () => {
+            if (!currentUserProfile || currentUserProfile.role !== 'admin' || !activeRoomForEdit) return;
+            
+            const facility = document.getElementById('edit-room-facility').value;
+            const name = document.getElementById('edit-room-name').value.trim();
+            const capacity = parseInt(document.getElementById('edit-room-capacity').value);
+            const hostelCategory = facility === 'College Hostel' ? document.getElementById('edit-room-hostel-category').value : null;
+
+            if (!name || isNaN(capacity) || capacity <= 0) {
+                showToast("Invalid resource parameters.", "error"); return;
+            }
+
+            try {
+                await apiUpdateDoc('rooms', activeRoomForEdit.id, { name, capacity, facility: facility, hostelCategory: hostelCategory });
+                showToast("Resource parameters updated.", "success");
+                closeModals();
+            } catch (err) {
+                console.error(err);
+                showToast("Update failed.", "error");
+            }
+        });
+
+        window.toggleRoomStatus = async (roomId, currentStatus) => {
+            if (!currentUserProfile || currentUserProfile.role !== 'admin') return;
+            try {
+                await apiUpdateDoc('rooms', roomId, { isActive: !currentStatus });
+                showToast(`Resource status updated to ${!currentStatus ? 'Online' : 'Offline'}.`, "success");
+            } catch (err) {
+                console.error(err);
+                showToast("Status update failed.", "error");
+            }
+        };
+
+        window.openBookingModal = (roomId) => {
+            if (!currentUserProfile || currentUserProfile.role !== 'student') return;
+            activeRoomForBooking = allRooms.find(r => r.id === roomId);
+            if (!activeRoomForBooking) return;
+            
+            const isHostel = activeRoomForBooking.facility === 'College Hostel';
+            
+            document.getElementById('book-room-name').innerText = activeRoomForBooking.name;
+            const now = new Date();
+            document.getElementById('book-date').value = now.toISOString().split('T')[0];
+            
+            if (isHostel) {
+                document.getElementById('date-label').innerText = "Move-in Date";
+                document.getElementById('time-group').classList.add('hidden');
+                document.getElementById('duration-group').classList.remove('hidden');
+                document.getElementById('book-duration').value = '1 Month'; // Default
+            } else {
+                document.getElementById('date-label').innerText = "Allocation Date";
+                document.getElementById('time-group').classList.remove('hidden');
+                document.getElementById('duration-group').classList.add('hidden');
+                document.getElementById('book-start-time').value = '10:00';
+                document.getElementById('book-end-time').value = '12:00';
+            }
+            
+            document.getElementById('booking-modal').classList.remove('hidden');
+        };
+
+        document.getElementById('submit-booking-btn').addEventListener('click', async () => {
+            if (!currentUserProfile || !activeRoomForBooking) return;
+
+            const isHostel = activeRoomForBooking.facility === 'College Hostel';
+            const date = document.getElementById('book-date').value;
+            let startTime = '', endTime = '', duration = '';
+
+            if (!date) {
+                showToast("Date parameter missing.", "error"); return;
+            }
+
+            if (isHostel) {
+                duration = document.getElementById('book-duration').value;
+                // Simplified conflict logic for hostels for prototype (relying on admin review)
+            } else {
+                startTime = document.getElementById('book-start-time').value;
+                endTime = document.getElementById('book-end-time').value;
+
+                if (!startTime || !endTime) {
+                    showToast("Temporal parameters missing.", "error"); return;
+                }
+                if (startTime >= endTime) {
+                    showToast("End time must succeed start time.", "error"); return;
+                }
+                // Client-side conflict validation against ALL non-rejected bookings
+                if (checkConflict(activeRoomForBooking.id, date, startTime, endTime)) {
+                    showToast("Temporal anomaly detected: Time slot overlaps existing allocation.", "error"); return;
+                }
+            }
+
+            try {
+                await apiAddDoc('bookings', {
+                    roomId: activeRoomForBooking.id,
+                    roomName: activeRoomForBooking.name,
+                    profileId: currentUserProfile.profileId,
+                    studentName: currentUserProfile.name,
+                    studentPhone: currentUserProfile.phone,
+                    isHostel: isHostel,
+                    date: date,
+                    startTime: startTime,
+                    endTime: endTime,
+                    duration: duration,
+                    status: 'pending',
+                    createdAt: Date.now()
+                });
+                showToast("Allocation request transmitted.", "success");
+                closeModals();
+            } catch (err) {
+                console.error(err);
+                showToast("Transmission failure.", "error");
+            }
+        });
+
+        function checkConflict(roomId, date, newStart, newEnd) {
+            const timeToMins = (t) => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+            const ns = timeToMins(newStart);
+            const ne = timeToMins(newEnd);
+
+            for (let b of allBookings) {
+                if (b.roomId === roomId && b.date === date && b.status !== 'rejected') {
+                    const es = timeToMins(b.startTime);
+                    const ee = timeToMins(b.endTime);
+                    if (ns < ee && ne > es) return true; // Overlap logic
+                }
+            }
+            return false;
+        }
+
+        window.updateBookingStatus = async (bookingId, newStatus) => {
+            if (!currentUserProfile || currentUserProfile.role !== 'admin') return;
+            try {
+                // Double check for conflicts at approval time
+                if (newStatus === 'approved') {
+                    const booking = allBookings.find(b => b.id === bookingId);
+                    if (booking) {
+                        const others = allBookings.filter(b => b.id !== bookingId && b.status === 'approved' && b.roomId === booking.roomId && b.date === booking.date);
+                        const timeToMins = (t) => { const [h,m] = t.split(':').map(Number); return h*60+m; };
+                        const ns = timeToMins(booking.startTime);
+                        const ne = timeToMins(booking.endTime);
+                        
+                        let hasConflict = false;
+                        for(let o of others) {
+                            const es = timeToMins(o.startTime);
+                            const ee = timeToMins(o.endTime);
+                            if (ns < ee && ne > es) { hasConflict = true; break; }
+                        }
+
+                        if(hasConflict) {
+                            showToast("Conflict override rejected. Time slot already allocated.", "error");
+                            return;
+                        }
+                    }
+                }
+
+                await apiUpdateDoc('bookings', bookingId, { status: newStatus });
+                showToast(`Request ${newStatus.toUpperCase()}.`, "success");
+            } catch (err) {
+                console.error(err);
+                showToast("Status modification failed.", "error");
+            }
+        };
+
+        window.openComplaintModal = () => {
+            if (!currentUserProfile || currentUserProfile.role !== 'student') return;
+            const select = document.getElementById('complaint-room-select');
+            select.innerHTML = `<option value="" disabled selected>Select an active resource in ${currentFacility}...</option>`;
+            
+            // Populate select with available rooms from memory for this facility
+            const facilityRooms = allRooms.filter(r => r.facility === currentFacility || (!r.facility && currentFacility === 'College'));
+            facilityRooms.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r.id;
+                opt.textContent = r.name;
+                select.appendChild(opt);
+            });
+            
+            document.getElementById('complaint-desc').value = '';
+            document.getElementById('complaint-modal').classList.remove('hidden');
+        };
+
+        document.getElementById('submit-complaint-btn')?.addEventListener('click', async () => {
+            if (!currentUserProfile || currentUserProfile.role !== 'student') return;
+            
+            const select = document.getElementById('complaint-room-select');
+            const roomId = select.value;
+            const desc = document.getElementById('complaint-desc').value.trim();
+            
+            if (!roomId || !desc) {
+                showToast("Please provide target resource and description.", "error"); return;
+            }
+            
+            const room = allRooms.find(r => r.id === roomId);
+            if (!room) return;
+
+            try {
+                await apiAddDoc('complaints', {
+                    roomId: room.id,
+                    roomName: room.name,
+                    profileId: currentUserProfile.profileId,
+                    studentName: currentUserProfile.name,
+                    studentPhone: currentUserProfile.phone,
+                    description: desc,
+                    status: 'open',
+                    createdAt: Date.now()
+                });
+                showToast("System alert transmitted.", "success");
+                closeModals();
+            } catch (err) {
+                console.error(err);
+                showToast("Transmission failure.", "error");
+            }
+        });
+
+        window.updateComplaintStatus = async (complaintId, newStatus) => {
+            if (!currentUserProfile || currentUserProfile.role !== 'admin') return;
+            try {
+                await apiUpdateDoc('complaints', complaintId, { status: newStatus });
+                showToast(`System alert marked as ${newStatus}.`, "success");
+            } catch (err) {
+                console.error(err);
+                showToast("Failed to override alert status.", "error");
+            }
+        };
+
+        // --- Helpers ---
+        function escapeHtml(unsafe) {
+            return (unsafe || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function formatDate(dateString) {
+            const options = { weekday: 'short', month: 'short', day: 'numeric' };
+            // Ensure no timezone shift issue by appending fake UTC time
+            return new Date(dateString + 'T12:00:00Z').toLocaleDateString(undefined, options); 
+        }
+
+        // Run Init
+        initializeAuth();
+
+    </script>
+</body>
+</html>
+```
